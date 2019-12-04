@@ -1,26 +1,94 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 
-function App() {
+const App = () => {
+  const [users, setUsers] = useState([]);
+  const [input, setInput] = useState({
+    name: "",
+    age: 0
+  });
+  const [state, setState] = useState({
+    isOpen: false
+  });
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const users = await axios.get("http://localhost:3001/users");
+      setUsers(users.data);
+    };
+    fetchUser();
+  });
+
+  // toggle
+
+  const toggleForm = () => {
+    setState({ isOpen: !state.isOpen });
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+    <div>
+      {state.isOpen ? (
+        <form
+          onSubmit={async e => {
+            e.preventDefault();
+            const user = await axios.post("http://localhost:3001/add", {
+              name: input.name,
+              age: input.age
+            });
+            console.log(user.data);
+          }}
         >
-          Learn React
-        </a>
-      </header>
+          <fieldset>
+            <label>ชื่อสกุล : </label>
+            <input
+              type="text"
+              name="name"
+              value={input.name}
+              onChange={e => {
+                setInput({ ...input, name: e.target.value });
+              }}
+            />
+          </fieldset>
+          <fieldset>
+            <label> อายุ : </label>
+            <input
+              type="number"
+              name="age"
+              value={input.age}
+              onChange={e => {
+                setInput({ ...input, age: e.target.value });
+              }}
+            />
+          </fieldset>
+          <button type="submit">บันทึก</button>
+        </form>
+      ) : null}
+
+      <button onClick={() => toggleForm()}>เพิ่ม</button>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>ชื่อสกุล</th>
+            <th>อายุ</th>
+            <th>จัดการ</th>
+          </tr>
+        </thead>
+        <tbody>
+          {users.map((user, index) => (
+            <tr key={index}>
+              <td>{index + 1}</td>
+              <td>{user.name}</td>
+              <td>{user.age}</td>
+              <td>
+                <a href="/edit">แก้ไข</a> |<a href="/delete">ลบ</a>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
-}
+};
 
 export default App;
