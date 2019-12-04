@@ -81,7 +81,14 @@ const App = () => {
               <td>{user.name}</td>
               <td>{user.age}</td>
               <td>
-                <a href="/edit">แก้ไข</a> |<a href="/delete">ลบ</a>
+                <a href="/edit">แก้ไข</a> |
+                <button
+                  onClick={async () => {
+                    const user = await axios.delete("/" + user.id);
+                  }}
+                >
+                  ลบ
+                </button>
               </td>
             </tr>
           ))}
